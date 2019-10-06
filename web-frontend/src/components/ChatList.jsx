@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-
+import getClient from "../api-client";
 const ChatList = () => {
-    // FIXME: get the message typedef from rust
     const [messages, setMessages] = useState(null);
 
     useEffect( () => {
         const fetchMessages = async () => {
-            const { MessagesAPI } = await import("e2e-client");
-            const client = new MessagesAPI("/api");
+            const client = await getClient("/api");
             const resp = await client.get_messages();
             setMessages(resp.messages);
         };
-        setInterval(fetchMessages, 1500);
+        fetchMessages().finally(
+            () => setInterval(fetchMessages, 1500)
+        );
     }, []);
 
     if (messages === null) {
@@ -19,12 +19,13 @@ const ChatList = () => {
     } else if (messages.length === 0) {
         return <div>No messages.</div>;
     }
-    console.log(messages);
+
     return <ul>
         {messages.map(msg => {
             let date = new Date(msg.timestamp);
             return <li>
-                {`[${msg.author}] ${date.toLocaleTimeString()}: ${msg.text}`}
+                <span className="who">{`[${msg.author}] ${date.toLocaleTimeString()}: `}</span>
+                <span>{msg.text}</span>
             </li>
         })}
     </ul>;
