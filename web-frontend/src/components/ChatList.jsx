@@ -11,8 +11,7 @@ const ChatList = () => {
             const resp = await client.get_messages();
             setMessages(resp.messages);
         };
-        fetchMessages();
-
+        setInterval(fetchMessages, 1500);
     }, []);
 
     if (messages === null) {
@@ -23,8 +22,9 @@ const ChatList = () => {
     console.log(messages);
     return <ul>
         {messages.map(msg => {
+            let date = new Date(msg.timestamp);
             return <li>
-                `[${msg.author}] ${msg.timestamp}: ${msg.text}`
+                {`[${msg.author}] ${date.toLocaleTimeString()}: ${msg.text}`}
             </li>
         })}
     </ul>;
