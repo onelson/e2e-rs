@@ -9,7 +9,7 @@ pub struct Message {
 }
 
 /// Just a message with a timestamp attached, used for output only.
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ChatLogEntry {
     pub timestamp: DateTime<Utc>,
     #[serde(flatten)]
@@ -19,13 +19,15 @@ pub struct ChatLogEntry {
 /// This is the response from the List handler.
 ///
 /// Messages in the response are _oldest first_.
-#[derive(Clone, Debug, Serialize)]
-pub struct MessageListResponse<'a> {
-    messages: &'a [ChatLogEntry],
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MessageListResponse {
+    messages: Vec<ChatLogEntry>,
 }
 
-impl<'a> MessageListResponse<'a> {
-    pub fn new(messages: &'a [ChatLogEntry]) -> Self {
-        Self { messages }
+impl MessageListResponse {
+    pub fn new(messages: &[ChatLogEntry]) -> Self {
+        Self {
+            messages: messages.to_vec(),
+        }
     }
 }
