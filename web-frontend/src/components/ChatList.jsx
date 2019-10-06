@@ -6,8 +6,9 @@ const ChatList = () => {
 
     useEffect( () => {
         const fetchMessages = async () => {
-            const { get_messages } = await import("e2e-client");
-            const resp = await get_messages("/api");
+            const { MessagesAPI } = await import("e2e-client");
+            const client = new MessagesAPI("/api");
+            const resp = await client.get_messages();
             setMessages(resp.messages);
         };
         fetchMessages();
