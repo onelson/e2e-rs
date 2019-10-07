@@ -1,6 +1,10 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
+// FIXME: add wasm-bindgen and use cfg_attr to conditionally tag each of these
+//  structs. This should avoid the need to make extraneous structs in
+//  `e2e-client` (such as `NewMessage`).
+
 /// Base fields for a message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Message {

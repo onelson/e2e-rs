@@ -92,7 +92,7 @@ with the build.
 
 My early attempts to follow this guide failed when importing the client in the
 react app, but it seems all the issues were actually on the app project
-configuration, not at here in the `e2e-client` crate.
+configuration, not here in the `e2e-client` crate.
 
 One _gotcha_ to note is that when building the client with `npm run build`, the
 npm packaging scripts can succeed even if the `cargo build` they trigger fails.
@@ -102,7 +102,7 @@ Watch for build failures when running the npm build, or better yet run
 pre-flight step for the `build` script entry in the client's `package.json`.
 
 
-### `web-frontend`
+### web-frontend
 
 The react app was bootstrapped with `create-react-app` (CRA) with the
 `--typescript` flag enabled. As such, files in the project that use js/jsx
@@ -121,7 +121,7 @@ The main takeaways I took where:
 
 - using [react-app-rewired] to modify the webpack config supplied by CRA (to add
   a wasm webpack loader).
-- using `await import("e2e-client"")` from inside an async function instead of a
+- using `await import("e2e-client")` from inside an async function instead of a
   regular import.
 
 The main webpack customizations I made for the project can be seen in 
@@ -140,3 +140,4 @@ requiring developers to get access to the package via async functions.
 [modifications]: https://github.com/onelson/e2e-rs/commit/d51acb6a4460c81efba84dbc4f1f980704c76f89
 [async import helper]: https://github.com/onelson/e2e-rs/blob/6265356f1ced493c5d4fd45f037c3ea1231114ca/web-frontend/src/api-client.js
 [Up and Running with React + Rust + Wasm]: https://prestonrichey.com/blog/react-rust-wasm
+[react-app-rewired]: https://github.com/timarney/react-app-rewired
