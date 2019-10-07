@@ -2,34 +2,38 @@ import React, { useState, useEffect } from "react";
 import "./ChatList.css";
 import { getClient } from "../api-client";
 const ChatList = () => {
-    const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState(null);
 
-    useEffect( () => {
-        const fetchMessages = async () => {
-            const client = await getClient();
-            const resp = await client.get_messages();
-            setMessages(resp.messages);
-        };
-        fetchMessages().finally(
-            () => setInterval(fetchMessages, 1500)
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const client = await getClient();
+      const resp = await client.get_messages();
+      setMessages(resp.messages);
+    };
+    fetchMessages().finally(() => setInterval(fetchMessages, 1500));
+  }, []);
+
+  if (messages === null) {
+    return <div>Loading...</div>;
+  } else if (messages.length === 0) {
+    return <div>No messages.</div>;
+  }
+
+  return (
+    <ul className="ChatList">
+      {messages.map(msg => {
+        let date = new Date(msg.timestamp);
+        return (
+          <li>
+            <span className="who">{`[${
+              msg.author
+            }] ${date.toLocaleTimeString()}: `}</span>
+            <span>{msg.text}</span>
+          </li>
         );
-    }, []);
-
-    if (messages === null) {
-        return <div>Loading...</div>;
-    } else if (messages.length === 0) {
-        return <div>No messages.</div>;
-    }
-
-    return (<ul className="ChatList">
-        {messages.map(msg => {
-            let date = new Date(msg.timestamp);
-            return <li>
-                <span className="who">{`[${msg.author}] ${date.toLocaleTimeString()}: `}</span>
-                <span>{msg.text}</span>
-            </li>
-        })}
-    </ul>);
+      })}
+    </ul>
+  );
 };
 
 export default ChatList;
