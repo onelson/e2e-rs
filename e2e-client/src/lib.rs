@@ -19,6 +19,16 @@ pub struct NewMessage {
     text: String,
 }
 
+#[wasm_bindgen]
+impl NewMessage {
+    #[wasm_bindgen(constructor)]
+    pub fn new(author: &str, text: &str) -> Self {
+        let author = author.to_string();
+        let text = text.to_string();
+        Self { author, text }
+    }
+}
+
 impl From<NewMessage> for Message {
     fn from(NewMessage { author, text }: NewMessage) -> Self {
         Self { author, text }
@@ -77,10 +87,13 @@ impl MessagesAPI {
 
     #[wasm_bindgen]
     pub fn create_message(&self, message: NewMessage) -> Promise {
+        let message: Message = message.into();
         let mut opts = RequestInit::new();
         opts.method("POST");
         opts.mode(RequestMode::Cors);
-        opts.body(Some(&JsValue::from_serde(&message).unwrap()));
+        opts.body(Some(&JsValue::from(
+            serde_json::to_string(&message).unwrap(),
+        )));
 
         let url = format!("{}/messages", &self.prefix);
         let request = Request::new_with_str_and_init(&url, &opts).unwrap();

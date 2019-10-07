@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import getClient from "../api-client";
+import "./ChatList.css";
+import { getClient } from "../api-client";
 const ChatList = () => {
     const [messages, setMessages] = useState(null);
 
     useEffect( () => {
         const fetchMessages = async () => {
-            const client = await getClient("/api");
+            const client = await getClient();
             const resp = await client.get_messages();
             setMessages(resp.messages);
         };
@@ -20,7 +21,7 @@ const ChatList = () => {
         return <div>No messages.</div>;
     }
 
-    return <ul>
+    return (<ul className="ChatList">
         {messages.map(msg => {
             let date = new Date(msg.timestamp);
             return <li>
@@ -28,7 +29,7 @@ const ChatList = () => {
                 <span>{msg.text}</span>
             </li>
         })}
-    </ul>;
+    </ul>);
 };
 
 export default ChatList;

@@ -1,0 +1,4 @@
+.ChatList {
+    flex: 5;
+    overflow-y: scroll;
+}

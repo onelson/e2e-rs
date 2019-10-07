@@ -1,0 +1,9 @@
+
+.App {
+    border-style: solid;
+    border-color: red;
+
+    display: flex;
+    flex-direction: column;
+    height: 99vh;
+}

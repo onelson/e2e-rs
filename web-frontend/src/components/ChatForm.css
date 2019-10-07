@@ -1,0 +1,15 @@
+.ChatForm {
+    background: #ececec;
+    display: flex;
+    flex-direction: row;
+}
+.ChatForm input[type=text] {
+    flex: 1;
+}
+
+.ChatForm .author {
+    border-right: 1px solid #777;
+}
+.ChatForm .author, .ChatForm input {
+    padding: 0.5rem 1.5rem;
+}
