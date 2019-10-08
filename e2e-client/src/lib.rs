@@ -2,7 +2,7 @@
 //!
 //! - https://rustwasm.github.io/docs/wasm-bindgen/examples/fetch.html
 //!
-pub use e2e_core::{Message, MessageListResponse};
+pub use e2e_core::{ChatLogEntry, Message, MessageListResponse};
 use futures::{future, Future};
 use js_sys::Promise;
 use serde::Serialize;
@@ -11,29 +11,6 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::future_to_promise;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
-
-#[wasm_bindgen]
-#[derive(Serialize)]
-pub struct NewMessage {
-    author: String,
-    text: String,
-}
-
-#[wasm_bindgen]
-impl NewMessage {
-    #[wasm_bindgen(constructor)]
-    pub fn new(author: &str, text: &str) -> Self {
-        let author = author.to_string();
-        let text = text.to_string();
-        Self { author, text }
-    }
-}
-
-impl From<NewMessage> for Message {
-    fn from(NewMessage { author, text }: NewMessage) -> Self {
-        Self { author, text }
-    }
-}
 
 #[wasm_bindgen]
 pub struct MessagesAPI {
@@ -86,8 +63,8 @@ impl MessagesAPI {
     }
 
     #[wasm_bindgen]
-    pub fn create_message(&self, message: NewMessage) -> Promise {
-        let message: Message = message.into();
+    pub fn create_message(&self, message: &JsValue) -> Promise {
+        let message: Message = message.into_serde().unwrap();
         let mut opts = RequestInit::new();
         opts.method("POST");
         opts.mode(RequestMode::Cors);

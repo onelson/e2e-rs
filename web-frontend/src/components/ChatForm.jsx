@@ -10,9 +10,11 @@ const ChatForm = () => {
     setInFlight(true);
     event.preventDefault();
     try {
-      const { NewMessage } = await getTypes();
       let client = await getClient();
-      await client.create_message(new NewMessage(author, text));
+      await client.create_message({
+        author,
+        text
+      });
       setText(""); // reset the form once the request is complete.
     } catch (reason) {
       console.error(reason);

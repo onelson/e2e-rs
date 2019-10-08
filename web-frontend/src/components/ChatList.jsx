@@ -21,8 +21,8 @@ const ChatList = () => {
 
   return (
     <ul className="ChatList">
-      {messages.map(msg => {
-        let date = new Date(msg.timestamp);
+      {messages.map(({ timestamp, msg }) => {
+        let date = new Date(timestamp);
         return (
           <li>
             <span className="who">{`[${

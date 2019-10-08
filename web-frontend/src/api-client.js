@@ -5,12 +5,6 @@ async function getMod() {
   _wasmModule = _wasmModule || import("e2e-client");
   return _wasmModule;
 }
-export async function getTypes() {
-  const { NewMessage } = await getMod();
-  return {
-    NewMessage
-  };
-}
 
 export async function getClient() {
   const { MessagesAPI } = await getMod();

@@ -23,10 +23,10 @@ fn list(data: web::Data<ChatStorage>) -> impl Responder {
 }
 
 fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Responder {
-    let message = body.into_inner();
+    let msg = body.into_inner();
     let mut guard = data.entries.lock().unwrap();
     let timestamp = Utc::now();
-    guard.push(ChatLogEntry { message, timestamp });
+    guard.push(ChatLogEntry { msg, timestamp });
     web::HttpResponse::Created().finish()
 }
 
