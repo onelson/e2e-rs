@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./ChatForm.css";
-import { getClient, getTypes } from "../api-client";
+import { getClient } from "../api-client";
 const ChatForm = () => {
-  let [author, setAuthor] = useState("owen"); // TODO: dynamic author?
+  let [author] = useState("owen"); // TODO: dynamic author?
   let [text, setText] = useState("");
   let [inFlight, setInFlight] = useState(false);
 
@@ -10,8 +10,8 @@ const ChatForm = () => {
     setInFlight(true);
     event.preventDefault();
     try {
-      let client = await getClient();
-      await client.create_message({
+      let client = getClient();
+      await client.createMessage({
         author,
         text
       });

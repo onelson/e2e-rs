@@ -13,19 +13,22 @@ lto = true
 crate-type = ["cdylib"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2.*", features = ["serde-serialize"] }
-futures = "0.1.*"
 js-sys = "0.3.*"
-wasm-bindgen-futures = "0.3.*"
-serde = { version = "1.0", features = ["derive"]}
+wasm-bindgen-futures = "0.4.*"
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0"
 serde_json = "1.0"
+
+[dependencies.wasm-bindgen]
+version = "0.2.55"
+features = ["serde-serialize"]
 
 [dependencies.e2e-core]
 path = "../e2e-core"
 features = ["typescript"]
 
 [dependencies.web-sys]
-version = "0.3.*"
+version = "0.3"
 features = [
   'Headers',
   'Request',
