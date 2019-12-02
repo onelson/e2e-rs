@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import "./ChatForm.css";
+import React, { FormEvent, useState } from "react";
 import { getClient } from "../api-client";
+import "./ChatForm.css";
+
 const ChatForm = () => {
   let [author] = useState("owen"); // TODO: dynamic author?
   let [text, setText] = useState("");
   let [inFlight, setInFlight] = useState(false);
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event: FormEvent) => {
     setInFlight(true);
     event.preventDefault();
     try {
@@ -23,8 +24,8 @@ const ChatForm = () => {
     }
   };
 
-  const handleTextChange = event => {
-    setText(event.target.value);
+  const handleTextChange = (event: FormEvent<HTMLInputElement>) => {
+    setText(event.currentTarget.value);
   };
 
   return (

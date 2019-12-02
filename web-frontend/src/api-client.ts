@@ -32,7 +32,7 @@ export class MessagesAPI {
     this.getMessages.bind(this);
   }
 
-  async createMessage(message: Message): Promise<void> {
+  async createMessage(message: Message): Promise<Response> {
     return this.rust
       .then(r => r.create_message(this.prefix, message))
       .then(resp => {
@@ -40,7 +40,7 @@ export class MessagesAPI {
         // and converting protocol-level signals into errors or values, but it
         // is also possible to hand the fetch response back to the js layer
         // directly as we are here.
-        console.log(resp);
+        return resp;
       });
   }
 

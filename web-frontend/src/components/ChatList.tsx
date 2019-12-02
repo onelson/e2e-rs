@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import "./ChatList.css";
 import { getClient } from "../api-client";
+import { ChatLogEntry } from "e2e-client";
+import "./ChatList.css";
+
 const ChatList = () => {
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState<ChatLogEntry[] | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -22,10 +24,10 @@ const ChatList = () => {
       {messages.length === 0 ? (
         <li>No messages (yet).</li>
       ) : (
-        messages.map(({ timestamp, msg }) => {
+        messages.map(({ timestamp, msg }, idx) => {
           let date = new Date(timestamp);
           return (
-            <li>
+            <li key={idx}>
               <span className="who">{`[${
                 msg.author
               }] ${date.toLocaleTimeString()}: `}</span>
