@@ -4,6 +4,24 @@ use chrono::prelude::*;
 use e2e_core::{ChatLogEntry, Message, MessageListResponse};
 use std::sync::Mutex;
 
+#[derive(Default)]
+struct NameGenerator {
+    adjectives: Vec<String>,
+    animals: Vec<String>,
+}
+
+/// Selects a random adjective and animal to create a new username.
+impl NameGenerator {
+    pub fn new() -> Self {
+        // TODO: read the text data and build the word vecs.
+        Self::default()
+    }
+
+    pub fn get_name(&self) -> String {
+        unimplemented!()
+    }
+}
+
 /// Data storage for the chats.
 struct ChatStorage {
     entries: Mutex<Vec<ChatLogEntry>>,
@@ -30,15 +48,26 @@ fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Respon
     web::HttpResponse::Created().finish()
 }
 
+fn username(data: web::Data<NameGenerator>) -> impl Responder {
+    web::HttpResponse::Created().body(&data.get_name())
+}
+
 fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    let storage = web::Data::new(ChatStorage::new());
     HttpServer::new(move || {
+        let name_data = web::Data::new(NameGenerator::new());
+        let storage = web::Data::new(ChatStorage::new());
+
         App::new()
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
+            .service(
+                web::resource("/username")
+                    .register_data(name_data)
+                    .route(web::post().to(username)),
+            )
             .service(
                 web::resource("/messages")
                     .register_data(storage.clone())

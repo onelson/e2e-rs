@@ -9,6 +9,7 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
 
 
+/// Fetch chat messages from the server.
 #[wasm_bindgen]
 pub async fn get_messages(prefix: String) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
@@ -16,7 +17,6 @@ pub async fn get_messages(prefix: String) -> Result<JsValue, JsValue> {
     opts.mode(RequestMode::Cors);
     let url = format!("{}/messages", &prefix);
     let request = Request::new_with_str_and_init(&url, &opts)?;
-
     request.headers().set("Accept", "application/json").unwrap();
 
     let window = web_sys::window().unwrap();
@@ -29,6 +29,7 @@ pub async fn get_messages(prefix: String) -> Result<JsValue, JsValue> {
     Ok(JsValue::from_serde(&message_list).unwrap())
 }
 
+/// Create a new chat message and persist it.
 #[wasm_bindgen]
 pub async fn create_message(prefix: String, message: JsValue) -> Result<JsValue, JsValue> {
     let message: Message = message.into_serde().unwrap();
@@ -41,13 +42,25 @@ pub async fn create_message(prefix: String, message: JsValue) -> Result<JsValue,
 
     let url = format!("{}/messages", &prefix);
     let request = Request::new_with_str_and_init(&url, &opts)?;
-
     request.headers().set("Accept", "application/json").unwrap();
     request
         .headers()
         .set("Content-Type", "application/json")
         .unwrap();
 
+    let window = web_sys::window().unwrap();
+    Ok(JsFuture::from(window.fetch_with_request(&request)).await?)
+}
+
+/// Request a new username from the server.
+#[wasm_bindgen]
+pub async fn get_username(prefix: String, message: JsValue) -> Result<JsValue, JsValue> {
+    let message: Message = message.into_serde().unwrap();
+    let mut opts = RequestInit::new();
+    opts.method("POST");
+    opts.mode(RequestMode::Cors);
+    let url = format!("{}/username", &prefix);
+    let request = Request::new_with_str_and_init(&url, &opts)?;
     let window = web_sys::window().unwrap();
     Ok(JsFuture::from(window.fetch_with_request(&request)).await?)
 }
