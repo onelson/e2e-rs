@@ -28,8 +28,6 @@ export class MessagesAPI {
   constructor(prefix: string) {
     this.prefix = prefix;
     this.rust = rust;
-    this.createMessage.bind(this);
-    this.getMessages.bind(this);
   }
 
   async createMessage(message: Message): Promise<Response> {
