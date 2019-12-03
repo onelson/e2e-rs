@@ -12,7 +12,7 @@ const ChatList = () => {
       const resp = await client.getMessages();
       setMessages(resp.messages);
     };
-    fetchMessages().finally(() => setInterval(fetchMessages, 1500));
+    fetchMessages().finally(() => setInterval(fetchMessages, 800));
   }, []);
 
   if (messages === null) {

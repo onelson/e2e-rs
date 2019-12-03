@@ -23,7 +23,7 @@ export class MessagesAPI {
   // URI prefix for the backend server
   prefix: string;
   // this is the wasm module...
-  rust: Promise<any>;
+  private rust: Promise<any>;
 
   constructor(prefix: string) {
     this.prefix = prefix;
