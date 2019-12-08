@@ -49,13 +49,18 @@ const ChatList = () => {
       ) : (
         messages.map(({ timestamp, msg }, idx) => {
           let date = new Date(timestamp);
-          return (
-            <li key={idx}>
-              <span className="who">{`[${
-                msg.author
-              }] ${date.toLocaleTimeString()}: `}</span>
-              <span>{msg.text}</span>
-            </li>
+          return msg.author === "SYSTEM" ? (
+              <li key={idx} className="system">
+              <span className="who">{`[${date.toLocaleTimeString()}]: `}</span>
+                <span>{msg.text}</span>
+              </li>
+          ) : (
+              <li key={idx}>
+              <span className="who">{`[${date.toLocaleTimeString()}] ${
+                  msg.author
+              }: `}</span>
+                <span>{msg.text}</span>
+              </li>
           );
         })
       )}

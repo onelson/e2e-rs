@@ -1,4 +1,17 @@
 .ChatList {
   flex: 5;
   overflow-y: scroll;
+  padding-left: 0.5rem;
+}
+
+li {
+  line-height: 1.5rem;
+  padding: 0.2rem 0.15rem;
+  list-style: none;
+}
+
+li.system {
+  color: #333;
+  background: #eee;
+  font-style: italic;
 }
