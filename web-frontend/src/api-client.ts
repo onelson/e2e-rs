@@ -49,7 +49,6 @@ export class MessagesAPI {
   async getUsername(): Promise<string> {
     return this.rust
       .then(r => {
-        debugger;
         return r.get_username(this.prefix);
       })
       .then(resp => resp.text());
