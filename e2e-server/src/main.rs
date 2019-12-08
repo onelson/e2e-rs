@@ -2,10 +2,12 @@ use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer, Responder};
 use chrono::prelude::*;
 use e2e_core::{ChatLogEntry, Message, MessageListResponse};
+use rand::prelude::*;
 use std::sync::Mutex;
 
 #[derive(Default)]
 struct NameGenerator {
+    rng: Mutex<ThreadRng>,
     adjectives: Vec<String>,
     animals: Vec<String>,
 }
@@ -14,11 +16,25 @@ struct NameGenerator {
 impl NameGenerator {
     pub fn new() -> Self {
         // TODO: read the text data and build the word vecs.
-        Self::default()
+
+        Self {
+            rng: Mutex::new(thread_rng()),
+            ..Self::default()
+        }
     }
 
     pub fn get_name(&self) -> String {
-        unimplemented!()
+        let (adjective, animal) = {
+            let guard = self.rng.lock().unwrap();
+            let mut rng = *guard;
+            (
+                self.adjectives.choose(&mut rng).unwrap(),
+                self.animals.choose(&mut rng).unwrap(),
+            )
+        };
+        let name = format!("{} {}", adjective, animal);
+        println!("`{}` has arrived.", &name);
+        name
     }
 }
 
