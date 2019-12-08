@@ -1,40 +1,58 @@
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer, Responder};
-use chrono::prelude::*;
 use e2e_core::{ChatLogEntry, Message, MessageListResponse};
 use rand::prelude::*;
-use std::sync::Mutex;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 #[derive(Default)]
 struct NameGenerator {
     rng: Mutex<ThreadRng>,
-    adjectives: Vec<String>,
-    animals: Vec<String>,
+    adjectives: Arc<Vec<String>>,
+    animals: Arc<Vec<String>>,
+}
+
+/// Break up a file into lines and collect into a vec.
+/// Blank lines are omitted, and the text is forced to lowercase.
+fn get_lines(file: File) -> Vec<String> {
+    let reader = BufReader::new(file);
+    reader
+        .lines()
+        .filter_map(|line| line.ok())
+        .filter(|s| s.as_str().trim() != "")
+        .map(|s| s.to_lowercase())
+        .collect()
 }
 
 /// Selects a random adjective and animal to create a new username.
 impl NameGenerator {
-    pub fn new() -> Self {
-        // TODO: read the text data and build the word vecs.
-
+    pub fn new(adjectives: Arc<Vec<String>>, animals: Arc<Vec<String>>) -> Self {
         Self {
             rng: Mutex::new(thread_rng()),
-            ..Self::default()
+            adjectives,
+            animals,
         }
     }
 
     pub fn get_name(&self) -> String {
-        let (adjective, animal) = {
-            let guard = self.rng.lock().unwrap();
-            let mut rng = *guard;
-            (
-                self.adjectives.choose(&mut rng).unwrap(),
-                self.animals.choose(&mut rng).unwrap(),
-            )
-        };
-        let name = format!("{} {}", adjective, animal);
-        println!("`{}` has arrived.", &name);
-        name
+        let guard = self.rng.lock().unwrap();
+        let mut rng = *guard;
+        // It's possible we have animals who don't have matching adjectives, so
+        // loop until we find a pair.
+        loop {
+            let animal = self.animals.choose(&mut rng).unwrap();
+            let adjective = self
+                .adjectives
+                .iter()
+                .filter(|s| s.chars().nth(0) == animal.chars().nth(0))
+                .choose(&mut rng);
+            if let Some(adjective) = adjective {
+                return format!("{} {}", adjective, animal);
+            }
+            unreachable!("failed to generate a new name.");
+        }
     }
 }
 
@@ -52,29 +70,47 @@ impl ChatStorage {
 }
 
 fn list(data: web::Data<ChatStorage>) -> impl Responder {
-    let guard = data.entries.lock().unwrap();
-    web::HttpResponse::Ok().json(MessageListResponse::new(&*guard.as_slice()))
+    let messages = data.entries.lock().unwrap();
+    log::debug!("History: {}", messages.len());
+    web::HttpResponse::Ok().json(MessageListResponse::new(&*messages.as_slice()))
 }
 
 fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Responder {
     let msg = body.into_inner();
-    let mut guard = data.entries.lock().unwrap();
-    let timestamp = Utc::now();
-    guard.push(ChatLogEntry { msg, timestamp });
+    {
+        let mut messages = data.entries.lock().unwrap();
+        messages.push(ChatLogEntry::new(msg));
+    }
     web::HttpResponse::Created().finish()
 }
 
-fn username(data: web::Data<NameGenerator>) -> impl Responder {
-    web::HttpResponse::Created().body(&data.get_name())
+fn username(name_gen: web::Data<NameGenerator>, data: web::Data<ChatStorage>) -> impl Responder {
+    let name = name_gen.get_name();
+
+    let msg = Message {
+        author: "SYSTEM".to_string(),
+        text: format!("`{}` has logged on.", &name),
+    };
+
+    let mut messages = data.entries.lock().unwrap();
+    messages.push(ChatLogEntry::new(msg));
+
+    web::HttpResponse::Created().body(&name)
 }
 
 fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+    let storage = web::Data::new(ChatStorage::new());
+
+    let data_dir: PathBuf = std::env::var("DATA_DIR").unwrap().into();
+    let adjectives = Arc::new(get_lines(
+        File::open(data_dir.join("adjectives.txt")).unwrap(),
+    ));
+    let animals = Arc::new(get_lines(File::open(data_dir.join("animals.txt")).unwrap()));
 
     HttpServer::new(move || {
-        let name_data = web::Data::new(NameGenerator::new());
-        let storage = web::Data::new(ChatStorage::new());
+        let name_data = web::Data::new(NameGenerator::new(adjectives.clone(), animals.clone()));
 
         App::new()
             .wrap(Logger::default())
@@ -82,6 +118,7 @@ fn main() -> std::io::Result<()> {
             .service(
                 web::resource("/username")
                     .register_data(name_data)
+                    .register_data(storage.clone())
                     .route(web::post().to(username)),
             )
             .service(

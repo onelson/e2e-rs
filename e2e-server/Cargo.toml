@@ -10,6 +10,7 @@ edition = "2018"
 actix-web = "1.0.*"
 env_logger = "0.7"
 rand = "0.7.2"
+log = "0.4.8"
 
 [dependencies.e2e-core]
 path = "../e2e-core"

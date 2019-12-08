@@ -24,6 +24,15 @@ pub struct ChatLogEntry {
     pub msg: Message,
 }
 
+impl ChatLogEntry {
+    pub fn new(msg: Message) -> Self {
+        Self {
+            msg,
+            timestamp: Utc::now(),
+        }
+    }
+}
+
 /// This is the response from the List handler.
 ///
 /// Messages in the response are _oldest first_.

@@ -3,25 +3,35 @@ import { getClient } from "../api-client";
 import "./ChatForm.css";
 
 const ChatForm = () => {
-  let [author] = useState("owen"); // TODO: dynamic author?
+  let [author, setAuthor] = useState<string | null>(null);
   let [text, setText] = useState("");
   let [inFlight, setInFlight] = useState(false);
+  let client = getClient();
+
+  React.useEffect(() => {
+    client.getUsername().then(setAuthor, reason => console.error(reason));
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
-    setInFlight(true);
     event.preventDefault();
-    try {
-      let client = getClient();
-      await client.createMessage({
+
+    if (author === null) {
+      throw new Error("author is not set.");
+    }
+    setInFlight(true);
+
+    return client.createMessage({
         author,
         text
+      }).then(() => {
+        // reset the form once the request is complete.
+        setText("");
+      },
+      reason => {
+        console.error(reason);
+      }).finally(() => {
+        setInFlight(false);
       });
-      setText(""); // reset the form once the request is complete.
-    } catch (reason) {
-      console.error(reason);
-    } finally {
-      setInFlight(false);
-    }
   };
 
   const handleTextChange = (event: FormEvent<HTMLInputElement>) => {
@@ -33,6 +43,7 @@ const ChatForm = () => {
       <span className="author">{author}</span>
       <input
         type="text"
+        autoFocus={true}
         placeholder="What's happening?"
         value={text}
         onChange={handleTextChange}

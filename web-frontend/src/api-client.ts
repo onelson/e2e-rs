@@ -17,7 +17,7 @@
 
 import { Message, MessageListResponse } from "e2e-client";
 
-const rust = import("e2e-client/e2e_client").catch(e => console.error(e));
+const rust = import("e2e-client").catch(e => console.error(e));
 
 export class MessagesAPI {
   // URI prefix for the backend server
@@ -44,6 +44,15 @@ export class MessagesAPI {
 
   async getMessages(): Promise<MessageListResponse> {
     return this.rust.then(r => r.get_messages(this.prefix));
+  }
+
+  async getUsername(): Promise<string> {
+    return this.rust
+      .then(r => {
+        debugger;
+        return r.get_username(this.prefix);
+      })
+      .then(resp => resp.text());
   }
 }
 

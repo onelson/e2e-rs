@@ -54,8 +54,7 @@ pub async fn create_message(prefix: String, message: JsValue) -> Result<JsValue,
 
 /// Request a new username from the server.
 #[wasm_bindgen]
-pub async fn get_username(prefix: String, message: JsValue) -> Result<JsValue, JsValue> {
-    let message: Message = message.into_serde().unwrap();
+pub async fn get_username(prefix: String) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
     opts.method("POST");
     opts.mode(RequestMode::Cors);
