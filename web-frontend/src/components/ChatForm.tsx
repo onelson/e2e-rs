@@ -15,21 +15,27 @@ const ChatForm = () => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (author === null) {
+    if (!author) {
       throw new Error("author is not set.");
     }
+
     setInFlight(true);
 
-    return client.createMessage({
+    return client
+      .createMessage({
         author,
         text
-      }).then(() => {
-        // reset the form once the request is complete.
-        setText("");
-      },
-      reason => {
-        console.error(reason);
-      }).finally(() => {
+      })
+      .then(
+        () => {
+          // reset the form once the request is complete.
+          setText("");
+        },
+        reason => {
+          console.error(reason);
+        }
+      )
+      .finally(() => {
         setInFlight(false);
       });
   };

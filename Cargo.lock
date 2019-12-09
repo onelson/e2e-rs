@@ -498,7 +498,7 @@ version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "e2e-client"
+name = "e2e-client-wasm"
 version = "0.1.0"
 dependencies = [
  "e2e-core 0.1.0",

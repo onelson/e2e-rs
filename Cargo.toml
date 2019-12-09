@@ -2,5 +2,5 @@
 members = [
     "e2e-core",
     "e2e-server",
-    "e2e-client",
+    "e2e-client-wasm",
 ]

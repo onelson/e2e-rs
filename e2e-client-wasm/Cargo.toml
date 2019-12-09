@@ -1,5 +1,5 @@
 [package]
-name = "e2e-client"
+name = "e2e-client-wasm"
 version = "0.1.0"
 authors = ["Owen Nelson <onelson@gmail.com>"]
 edition = "2018"
