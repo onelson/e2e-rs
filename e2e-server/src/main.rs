@@ -69,13 +69,13 @@ impl ChatStorage {
     }
 }
 
-fn list(data: web::Data<ChatStorage>) -> impl Responder {
+async fn list(data: web::Data<ChatStorage>) -> impl Responder {
     let messages = data.entries.lock().unwrap();
     log::debug!("History: {}", messages.len());
     web::HttpResponse::Ok().json(MessageListResponse::new(&*messages.as_slice()))
 }
 
-fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Responder {
+async fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Responder {
     let msg = body.into_inner();
     {
         let mut messages = data.entries.lock().unwrap();
@@ -84,7 +84,10 @@ fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Respon
     web::HttpResponse::Created().finish()
 }
 
-fn username(name_gen: web::Data<NameGenerator>, data: web::Data<ChatStorage>) -> impl Responder {
+async fn username(
+    name_gen: web::Data<NameGenerator>,
+    data: web::Data<ChatStorage>,
+) -> impl Responder {
     let name = name_gen.get_name();
 
     let msg = Message {
@@ -98,16 +101,19 @@ fn username(name_gen: web::Data<NameGenerator>, data: web::Data<ChatStorage>) ->
     web::HttpResponse::Created().body(&name)
 }
 
-fn main() -> std::io::Result<()> {
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
     let storage = web::Data::new(ChatStorage::new());
 
-    let data_dir: PathBuf = std::env::var("DATA_DIR").unwrap().into();
+    let data_dir: PathBuf = std::env::var("DATA_DIR").expect("DATA_DIR").into();
     let adjectives = Arc::new(get_lines(
-        File::open(data_dir.join("adjectives.txt")).unwrap(),
+        File::open(data_dir.join("adjectives.txt")).expect("adjectives.txt"),
     ));
-    let animals = Arc::new(get_lines(File::open(data_dir.join("animals.txt")).unwrap()));
+    let animals = Arc::new(get_lines(
+        File::open(data_dir.join("animals.txt")).expect("animals.txt"),
+    ));
 
     HttpServer::new(move || {
         let name_data = web::Data::new(NameGenerator::new(adjectives.clone(), animals.clone()));
@@ -117,17 +123,18 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::new("%a %{User-Agent}i"))
             .service(
                 web::resource("/username")
-                    .register_data(name_data)
-                    .register_data(storage.clone())
+                    .app_data(name_data)
+                    .app_data(storage.clone())
                     .route(web::post().to(username)),
             )
             .service(
                 web::resource("/messages")
-                    .register_data(storage.clone())
+                    .app_data(storage.clone())
                     .route(web::get().to(list))
                     .route(web::post().to(create)),
             )
     })
     .bind("127.0.0.1:8080")?
     .run()
+    .await
 }
