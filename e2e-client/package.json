@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "dump": "cargo run > _structs.ts",
+    "build": "npm run dump && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,8 +15,5 @@
   "license": "ISC",
   "devDependencies": {
     "typescript": "^3.7.3"
-  },
-  "peerDependencies": {
-    "e2e-client-wasm": "file:../e2e-client-wasm/pkg"
   }
 }

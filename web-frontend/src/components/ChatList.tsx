@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import isEquals from "lodash.isequal";
 import { getClient } from "../api-client";
-import { ChatLogEntry } from "e2e-client-wasm";
+import { ChatLogEntry } from "e2e-client";
 import "./ChatList.css";
 
 const ChatList = () => {
