@@ -1,23 +1,13 @@
 [package]
-name = "e2e-client-wasm"
+name = "e2e-client"
 version = "0.1.0"
 authors = ["Owen Nelson <onelson@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[profile.release]
-lto = true
-
-[lib]
-crate-type = ["cdylib"]
-
 [dependencies]
-js-sys = "0.3.*"
-wasm-bindgen-futures = "0.4.*"
 serde = { version = "1.0", features = ["derive"] }
-serde_derive = "1.0"
-serde_json = "1.0"
 
 [dependencies.wasm-bindgen]
 version = "0.2.55"
@@ -26,14 +16,3 @@ features = ["serde-serialize"]
 [dependencies.e2e-core]
 path = "../e2e-core"
 features = ["typescript"]
-
-[dependencies.web-sys]
-version = "0.3"
-features = [
-  'Headers',
-  'Request',
-  'RequestInit',
-  'RequestMode',
-  'Response',
-  'Window',
-]

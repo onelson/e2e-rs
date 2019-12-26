@@ -10,10 +10,14 @@ edition = "2018"
 chrono = { version="0.4", features = ["serde"] }
 serde = { version="1.0", features= ["derive"] }
 serde_derive = "1.0"
-wasm-bindgen = { version = "0.2.*", optional=true }
-#typescript-definitions = { version = '0.1.10', optional = true }
-typescript-definitions = { version = "0.1.10", git = 'https://github.com/onelson/typescript-definitions', branch = 'no-debug-attrs', optional = true }
+
+[dependencies.typescript-definitions]
+version = "0.1.10"
+features = ["export-typescript"]
+git = 'https://github.com/onelson/typescript-definitions'
+branch = 'no-debug-attrs'
+optional = true
 
 [features]
 default = []
-typescript = ["typescript-definitions", "wasm-bindgen"]
+typescript = ["typescript-definitions"]
