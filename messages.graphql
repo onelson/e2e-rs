@@ -1,0 +1,40 @@
+# this directive is only parsed/used by `juniper_from_schema` to control what
+# types to use for specific fields.
+#directive @juniper(
+#    ownership: String, # valid values: borrowed, owned, as_ref
+#    infallible: Boolean,
+#    with_time_zone: Boolean
+#) on FIELD_DEFINITION
+
+# Custom scalars that juniper knows how to represent in rust.
+#scalar Date
+#scalar DateTime
+scalar DateTimeUtc
+#scalar Url
+#scalar Uuid
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    allMessages: [ChatLogEntry!]! @juniper(ownership: "owned")
+}
+
+type Mutation {
+    getUsername: String! @juniper(ownership: "owned"),
+    createMessage(message: Message!): Boolean!
+}
+
+
+input Message {
+    author: String!,
+    text: String!
+}
+
+type ChatLogEntry {
+    author: String!,
+    text: String!,
+    timestamp: DateTimeUtc!
+}
