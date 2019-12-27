@@ -1,138 +1,74 @@
+#[macro_use]
+pub extern crate juniper;
+use crate::data::{ChatStorage, NameGenerator};
+use crate::schema::Context;
 use actix_web::middleware::Logger;
-use actix_web::{web, App, HttpServer, Responder};
-use e2e_core::{ChatLogEntry, Message, MessageListResponse};
-use rand::prelude::*;
+use actix_web::{web, App, Error, HttpResponse, HttpServer, Responder};
+use juniper::http::GraphQLRequest;
+use schema::{create_schema, ChatLogEntry, Message, Schema};
 use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-#[derive(Default)]
-struct NameGenerator {
-    rng: Mutex<ThreadRng>,
-    adjectives: Arc<Vec<String>>,
-    animals: Arc<Vec<String>>,
+mod data;
+mod schema;
+
+async fn graphiql() -> impl Responder {
+    let html = juniper::graphiql::graphiql_source("/graphql");
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(html)
 }
 
-/// Break up a file into lines and collect into a vec.
-/// Blank lines are omitted, and the text is forced to lowercase.
-fn get_lines(file: File) -> Vec<String> {
-    let reader = BufReader::new(file);
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .filter(|s| s.as_str().trim() != "")
-        .map(|s| s.to_lowercase())
-        .collect()
-}
-
-/// Selects a random adjective and animal to create a new username.
-impl NameGenerator {
-    pub fn new(adjectives: Arc<Vec<String>>, animals: Arc<Vec<String>>) -> Self {
-        Self {
-            rng: Mutex::new(thread_rng()),
-            adjectives,
-            animals,
-        }
-    }
-
-    pub fn get_name(&self) -> String {
-        let guard = self.rng.lock().unwrap();
-        let mut rng = *guard;
-        // It's possible we have animals who don't have matching adjectives, so
-        // loop until we find a pair.
-        loop {
-            let animal = self.animals.choose(&mut rng).unwrap();
-            let adjective = self
-                .adjectives
-                .iter()
-                .filter(|s| s.chars().nth(0) == animal.chars().nth(0))
-                .choose(&mut rng);
-            if let Some(adjective) = adjective {
-                return format!("{} {}", adjective, animal);
-            }
-            unreachable!("failed to generate a new name.");
-        }
-    }
-}
-
-/// Data storage for the chats.
-struct ChatStorage {
-    entries: Mutex<Vec<ChatLogEntry>>,
-}
-
-impl ChatStorage {
-    pub fn new() -> Self {
-        Self {
-            entries: Mutex::new(vec![]),
-        }
-    }
-}
-
-async fn list(data: web::Data<ChatStorage>) -> impl Responder {
-    let messages = data.entries.lock().unwrap();
-    log::debug!("History: {}", messages.len());
-    web::HttpResponse::Ok().json(MessageListResponse::new(&*messages.as_slice()))
-}
-
-async fn create(body: web::Json<Message>, data: web::Data<ChatStorage>) -> impl Responder {
-    let msg = body.into_inner();
-    {
-        let mut messages = data.entries.lock().unwrap();
-        messages.push(ChatLogEntry::new(msg));
-    }
-    web::HttpResponse::Created().finish()
-}
-
-async fn username(
-    name_gen: web::Data<NameGenerator>,
-    data: web::Data<ChatStorage>,
-) -> impl Responder {
-    let name = name_gen.get_name();
-
-    let msg = Message {
-        author: "SYSTEM".to_string(),
-        text: format!("`{}` has logged on.", &name),
+async fn graphql(
+    st: web::Data<Arc<Schema>>,
+    name_generator: web::Data<NameGenerator>,
+    chat_storage: web::Data<ChatStorage>,
+    graph_query: web::Json<GraphQLRequest>,
+) -> Result<HttpResponse, Error> {
+    let ctx = Context {
+        name_generator: name_generator.clone(),
+        chat_storage: chat_storage.clone(),
     };
-
-    let mut messages = data.entries.lock().unwrap();
-    messages.push(ChatLogEntry::new(msg));
-
-    web::HttpResponse::Created().body(&name)
+    let body = web::block(move || {
+        let res = graph_query.execute(&st, &ctx);
+        Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
+    })
+    .await?;
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .body(body))
 }
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
-    let storage = web::Data::new(ChatStorage::new());
 
-    let data_dir: PathBuf = std::env::var("DATA_DIR").expect("DATA_DIR").into();
-    let adjectives = Arc::new(get_lines(
+    let chat_storage = web::Data::new(data::ChatStorage::new());
+
+    let data_dir: PathBuf = std::env::var("DATA_DIR")
+        .unwrap_or_else(|_| String::from("."))
+        .into();
+    let adjectives = Arc::new(data::get_lines(
         File::open(data_dir.join("adjectives.txt")).expect("adjectives.txt"),
     ));
-    let animals = Arc::new(get_lines(
+    let animals = Arc::new(data::get_lines(
         File::open(data_dir.join("animals.txt")).expect("animals.txt"),
     ));
 
-    HttpServer::new(move || {
-        let name_data = web::Data::new(NameGenerator::new(adjectives.clone(), animals.clone()));
+    let schema = web::Data::new(Arc::new(create_schema()));
+    let name_generator = web::Data::new(data::NameGenerator::new(adjectives, animals));
 
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
-            .service(
-                web::resource("/username")
-                    .app_data(name_data)
-                    .app_data(storage.clone())
-                    .route(web::post().to(username)),
-            )
-            .service(
-                web::resource("/messages")
-                    .app_data(storage.clone())
-                    .route(web::get().to(list))
-                    .route(web::post().to(create)),
-            )
+            .app_data(schema.clone())
+            .app_data(name_generator.clone())
+            .app_data(chat_storage.clone())
+            .service(web::resource("/graphql").route(web::post().to(graphql)))
+            .service(web::resource("/graphiql").route(web::get().to(graphiql)))
     })
     .bind("127.0.0.1:8080")?
     .run()

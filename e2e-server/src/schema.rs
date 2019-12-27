@@ -1,10 +1,16 @@
-use crate::ChatLogEntry;
+use crate::data::{ChatStorage, NameGenerator};
+use actix_web::web::Data;
 use chrono::prelude::*;
 use juniper_from_schema::graphql_schema_from_file;
 
 graphql_schema_from_file!("../messages.graphql");
 
-pub struct Context;
+#[derive(Clone)]
+pub struct Context {
+    pub chat_storage: Data<ChatStorage>,
+    pub name_generator: Data<NameGenerator>,
+}
+
 impl juniper::Context for Context {}
 
 pub struct Query;
@@ -55,5 +61,27 @@ impl ChatLogEntryFields for ChatLogEntry {
         _executor: &juniper::Executor<'_, Context>,
     ) -> juniper::FieldResult<&DateTime<Utc>> {
         Ok(&self.timestamp)
+    }
+}
+
+pub fn create_schema() -> Schema {
+    Schema::new(Query {}, Mutation {})
+}
+
+/// Just a message with a timestamp attached, used for output only.
+#[derive(Debug)]
+pub struct ChatLogEntry {
+    /// When the entry was collected by the server.
+    pub timestamp: DateTime<Utc>,
+    /// The message itself.
+    pub msg: Message,
+}
+
+impl ChatLogEntry {
+    pub fn new(msg: Message) -> Self {
+        Self {
+            msg,
+            timestamp: Utc::now(),
+        }
     }
 }
