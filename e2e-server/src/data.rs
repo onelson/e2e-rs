@@ -12,7 +12,7 @@ use std::io::{BufRead, BufReader};
 use std::sync::{Arc, Mutex};
 
 /// Prepare a system message to announce a user when they connect.
-fn announce_login(name: &str) -> ChatLogEntry {
+pub fn announce_login(name: &str) -> ChatLogEntry {
     ChatLogEntry::new(Message {
         author: "SYSTEM".to_string(),
         text: format!("`{}` has logged on.", &name),
@@ -49,7 +49,10 @@ impl NameGenerator {
     }
 
     pub fn get_name(&self) -> String {
-        let guard = self.rng.lock().unwrap();
+        let guard = match self.rng.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
         let mut rng = *guard;
         // It's possible we have animals who don't have matching adjectives, so
         // loop until we find a pair.
@@ -70,7 +73,7 @@ impl NameGenerator {
 
 /// Data storage for the chats.
 pub struct ChatStorage {
-    entries: Mutex<Vec<ChatLogEntry>>,
+    pub entries: Mutex<Vec<ChatLogEntry>>,
 }
 
 impl ChatStorage {
