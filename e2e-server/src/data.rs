@@ -11,14 +11,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::sync::{Arc, Mutex};
 
-/// Prepare a system message to announce a user when they connect.
-pub fn announce_login(name: &str) -> ChatLogEntry {
-    ChatLogEntry::new(Message {
-        author: "SYSTEM".to_string(),
-        text: format!("`{}` has logged on.", &name),
-    })
-}
-
 #[derive(Default)]
 pub struct NameGenerator {
     rng: Mutex<OsRng>,
@@ -73,7 +65,7 @@ impl NameGenerator {
 
 /// Data storage for the chats.
 pub struct ChatStorage {
-    pub entries: Mutex<Vec<ChatLogEntry>>,
+    entries: Mutex<Vec<ChatLogEntry>>,
 }
 
 impl ChatStorage {
@@ -81,5 +73,30 @@ impl ChatStorage {
         Self {
             entries: Mutex::new(vec![]),
         }
+    }
+
+    /// Prepare a system message to announce a user when they connect.
+    pub fn announce_login(&self, name: &str) {
+        let msg = Message {
+            author: "SYSTEM".to_string(),
+            text: format!("`{}` has logged on.", &name),
+        };
+        self.publish_message(msg);
+    }
+
+    pub fn publish_message(&self, msg: Message) {
+        let mut messages = match self.entries.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        messages.push(ChatLogEntry::new(msg));
+    }
+
+    pub fn all_messages(&self) -> Vec<ChatLogEntry> {
+        let messages = match self.entries.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        messages.clone()
     }
 }

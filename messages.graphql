@@ -24,17 +24,20 @@ type Query {
 
 type Mutation {
     getUsername: String! @juniper(ownership: "owned"),
-    createMessage(message: Message!): Boolean!
+    createMessage(message: NewMessage!): Boolean!
 }
 
+input NewMessage {
+    author: String!,
+    text: String!
+}
 
-input Message {
+type Message {
     author: String!,
     text: String!
 }
 
 type ChatLogEntry {
-    author: String!,
-    text: String!,
+    msg: Message!
     timestamp: DateTimeUtc!
 }

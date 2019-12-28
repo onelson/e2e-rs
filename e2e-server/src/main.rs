@@ -1,11 +1,10 @@
-#[macro_use]
-pub extern crate juniper;
+extern crate juniper;
 use crate::data::{ChatStorage, NameGenerator};
 use crate::schema::Context;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, Error, HttpResponse, HttpServer, Responder};
 use juniper::http::GraphQLRequest;
-use schema::{create_schema, ChatLogEntry, Message, Schema};
+use schema::{create_schema, Schema};
 use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;

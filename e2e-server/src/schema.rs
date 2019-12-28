@@ -5,13 +5,39 @@ use juniper_from_schema::graphql_schema_from_file;
 
 graphql_schema_from_file!("../messages.graphql");
 
-#[derive(Clone)]
 pub struct Context {
     pub chat_storage: Data<ChatStorage>,
     pub name_generator: Data<NameGenerator>,
 }
 
 impl juniper::Context for Context {}
+
+#[derive(Debug, Clone)]
+pub struct Message {
+    pub author: String,
+    pub text: String,
+}
+
+impl From<NewMessage> for Message {
+    fn from(NewMessage { author, text }: NewMessage) -> Self {
+        Self { author, text }
+    }
+}
+
+impl MessageFields for Message {
+    fn field_author<'a>(
+        &self,
+        _executor: &juniper::Executor<'a, Context>,
+    ) -> juniper::FieldResult<&String> {
+        Ok(&self.author)
+    }
+    fn field_text<'a>(
+        &self,
+        _executor: &juniper::Executor<'a, Context>,
+    ) -> juniper::FieldResult<&String> {
+        Ok(&self.text)
+    }
+}
 
 pub struct Query;
 
@@ -21,11 +47,7 @@ impl QueryFields for Query {
         executor: &juniper::Executor<'a, Context>,
         _trail: &self::QueryTrail<'_, ChatLogEntry, juniper_from_schema::Walked>,
     ) -> juniper::FieldResult<Vec<ChatLogEntry>> {
-        let messages = match executor.context().chat_storage.entries.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        Ok(messages.clone())
+        Ok(executor.context().chat_storage.all_messages())
     }
 }
 
@@ -37,42 +59,29 @@ impl MutationFields for Mutation {
         executor: &juniper::Executor<'_, Context>,
     ) -> juniper::FieldResult<String> {
         let username = executor.context().name_generator.get_name();
-        {
-            let announcement = crate::data::announce_login(&username);
-            let mut messages = match executor.context().chat_storage.entries.lock() {
-                Ok(guard) => guard,
-                Err(poisoned) => poisoned.into_inner(),
-            };
-            messages.push(announcement);
-        }
+        executor.context().chat_storage.announce_login(&username);
         Ok(username)
     }
     fn field_create_message(
         &self,
         executor: &juniper::Executor<'_, Context>,
-        message: Message,
+        message: NewMessage,
     ) -> juniper::FieldResult<&bool> {
-        let mut messages = match executor.context().chat_storage.entries.lock() {
-            Ok(guard) => guard,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        messages.push(ChatLogEntry::new(message));
+        executor
+            .context()
+            .chat_storage
+            .publish_message(message.into());
         Ok(&true)
     }
 }
 
 impl ChatLogEntryFields for ChatLogEntry {
-    fn field_author(
+    fn field_msg(
         &self,
         _executor: &juniper::Executor<'_, Context>,
-    ) -> juniper::FieldResult<&String> {
-        Ok(&self.author)
-    }
-    fn field_text(
-        &self,
-        _executor: &juniper::Executor<'_, Context>,
-    ) -> juniper::FieldResult<&String> {
-        Ok(&self.text)
+        _trail: &self::QueryTrail<'_, Message, juniper_from_schema::Walked>,
+    ) -> juniper::FieldResult<&Message> {
+        Ok(&self.msg)
     }
     fn field_timestamp(
         &self,
@@ -89,19 +98,15 @@ pub fn create_schema() -> Schema {
 /// Just a message with a timestamp attached, used for output only.
 #[derive(Debug, Clone)]
 pub struct ChatLogEntry {
+    pub msg: Message,
     /// When the entry was collected by the server.
     pub timestamp: DateTime<Utc>,
-    /// The author of the message.
-    pub author: String,
-    /// The message body itself.
-    pub text: String,
 }
 
 impl ChatLogEntry {
     pub fn new(msg: Message) -> Self {
         Self {
-            author: msg.author.clone(),
-            text: msg.text.clone(),
+            msg,
             timestamp: Utc::now(),
         }
     }
