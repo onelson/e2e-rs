@@ -3,7 +3,7 @@ use actix_web::web::Data;
 use chrono::prelude::*;
 use juniper_from_schema::graphql_schema_from_file;
 
-graphql_schema_from_file!("../messages.graphql");
+graphql_schema_from_file!("schema.graphql");
 
 pub struct Context {
     pub chat_storage: Data<ChatStorage>,

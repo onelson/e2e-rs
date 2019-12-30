@@ -17,11 +17,14 @@
     "typescript": "3.6.3"
   },
   "scripts": {
-    "start": "npm run apollo:generate && react-scripts start",
-    "build": "npm run apollo:generate && react-scripts build",
-    "test": "npm run apollo:generate && react-scripts test",
+    "start": "npm run codegen && react-scripts start",
+    "build": "npm run codegen && react-scripts build",
+    "test": "npm run codegen && react-scripts test",
     "eject": "react-scripts eject",
-    "apollo:generate": "rm -rf src/_gql/generated && apollo codegen:generate --target typescript --tsFileExtension=d.ts --passthroughCustomScalars --customScalarsPrefix=E2e --outputFlat src/_gql/generated"
+    "gql:clean": "rm -rf src/_gql/generated && mkdir -p src/_gql/generated",
+    "gql:prep-schema": "sed -e 's/[^\\s]@juniper(.*)//' ../e2e-server/schema.graphql > src/_gql/generated/schema.graphql",
+    "gql:apollo": "apollo codegen:generate --target typescript --tsFileExtension=d.ts --passthroughCustomScalars --customScalarsPrefix=E2e --outputFlat src/_gql/generated",
+    "codegen": "npm run gql:clean && npm run gql:prep-schema && npm run gql:apollo"
   },
   "eslintConfig": {
     "extends": "react-app"
