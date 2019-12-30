@@ -6,12 +6,14 @@ import "./ChatList.css";
 
 const ChatList = () => {
   const listHandle = useRef<HTMLUListElement | null>(null);
-  // const [messages, setMessages] = useState<ChatLogEntry[] | null>(null);
-  const { loading, error, data } = useQuery<ReadMessages>(READ_MESSAGES, {
-    pollInterval: 900
-  });
+  const { loading, error, data: messageData } = useQuery<ReadMessages>(
+    READ_MESSAGES,
+    {
+      pollInterval: 900
+    }
+  );
 
-  const messages = data && data.allMessages;
+  const messages = messageData && messageData.allMessages;
 
   if (error) {
     console.error(error);
