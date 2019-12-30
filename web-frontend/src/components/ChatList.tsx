@@ -1,12 +1,21 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import isEquals from "lodash.isequal";
-import { getClient } from "../api-client";
-import { ChatLogEntry } from "e2e-client";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
+import { useQuery } from "@apollo/react-hooks";
+import { READ_MESSAGES } from "../api-client";
+import { ReadMessages } from "../_gql/generated/ReadMessages";
 import "./ChatList.css";
 
 const ChatList = () => {
   const listHandle = useRef<HTMLUListElement | null>(null);
-  const [messages, setMessages] = useState<ChatLogEntry[] | null>(null);
+  // const [messages, setMessages] = useState<ChatLogEntry[] | null>(null);
+  const { loading, error, data } = useQuery<ReadMessages>(READ_MESSAGES, {
+    pollInterval: 900
+  });
+
+  const messages = data && data.allMessages;
+
+  if (error) {
+    console.error(error);
+  }
 
   const updateScrollPosition = () => {
     const node = listHandle.current;
@@ -17,28 +26,14 @@ const ChatList = () => {
   };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const client = getClient();
-      const resp = await client.getMessages();
-      setMessages(messages => {
-        if (isEquals(messages, resp.messages)) {
-          return messages;
-        } else {
-          return resp.messages;
-        }
-      });
-    };
-
-    fetchMessages()
-      .then(() => updateScrollPosition())
-      .finally(() => setInterval(fetchMessages, 900));
-  }, []);
+    updateScrollPosition();
+  }, [messages]);
 
   useLayoutEffect(() => {
     updateScrollPosition();
   });
 
-  if (messages === null) {
+  if (loading || !messages) {
     return <div>Loading...</div>;
   }
 

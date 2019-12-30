@@ -1,15 +1,24 @@
 import React, { FormEvent, useState } from "react";
-import { getClient } from "../api-client";
+import { useApolloClient, useMutation } from "@apollo/react-hooks";
+import { GENERATE_USERNAME, CREATE_MESSAGE } from "../api-client";
 import "./ChatForm.css";
+import { GenerateUsername } from "../_gql/generated/GenerateUsername";
 
 const ChatForm = () => {
-  let [author, setAuthor] = useState<string | null>(null);
-  let [text, setText] = useState("");
-  let [inFlight, setInFlight] = useState(false);
-  let client = getClient();
+  // const [author, setAuthor] = useState<string | null>(null);
+  const [text, setText] = useState("");
+  const [inFlight, setInFlight] = useState(false);
+  const client = useApolloClient();
 
+  const [generateUsername, { data }] = useMutation<GenerateUsername>(
+    GENERATE_USERNAME
+  );
+  const author = data && data.username;
   React.useEffect(() => {
-    client.getUsername().then(setAuthor, reason => console.error(reason));
+    generateUsername().catch(reason => {
+      console.error(reason);
+    });
+    // eslint-disable-next-line
   }, []);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -22,9 +31,14 @@ const ChatForm = () => {
     setInFlight(true);
 
     return client
-      .createMessage({
-        author,
-        text
+      .mutate({
+        mutation: CREATE_MESSAGE,
+        variables: {
+          msg: {
+            author,
+            text
+          }
+        }
       })
       .then(
         () => {
