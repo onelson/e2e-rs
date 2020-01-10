@@ -1,0 +1,36 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+package chatroom;
+
+message Identity {
+    string username = 1;
+}
+
+message IdentityCreateRequest {
+}
+
+message Message {
+    string author = 1;
+    string text = 2;
+}
+
+message MessageCreated {
+}
+
+message ChatLogEntry {
+    Message msg = 1;
+    google.protobuf.Timestamp timestamp = 2;
+}
+
+message MessageList {
+    repeated ChatLogEntry messages = 1;
+}
+
+message MessageReadRequest {
+}
+
+service ChatroomService {
+    rpc getIdentity (IdentityCreateRequest) returns (Identity);
+    rpc createMessage (Message) returns (MessageCreated);
+    rpc getMessages (MessageReadRequest) returns (MessageList);
+}
