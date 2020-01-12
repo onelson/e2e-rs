@@ -29,9 +29,7 @@ impl chatroom_server::Chatroom for MyChatroom {
     ) -> Result<Response<IdentityResponse>, Status> {
         let username = self.name_generator.get_name();
         self.chat_storage.announce_login(&username);
-        let resp = IdentityResponse { username };
-
-        Ok(Response::new(resp))
+        Ok(Response::new(IdentityResponse { username }))
     }
     async fn create_message(
         &self,

@@ -8,7 +8,7 @@ mod schema;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    std::env::set_var("RUST_LOG", "actix_web=debug");
+    std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
     let addr = "[::1]:8080".parse()?;
