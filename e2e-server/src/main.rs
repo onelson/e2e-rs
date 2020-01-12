@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    let addr = "[::1]:8080".parse()?;
+    let addr = "0.0.0.0:8080".parse()?;
     let chat_storage = data::ChatStorage::new();
     let data_dir: PathBuf = std::env::var("DATA_DIR")
         .unwrap_or_else(|_| String::from("."))
