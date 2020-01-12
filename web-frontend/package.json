@@ -3,27 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/react-hooks": "^3.1.3",
     "@types/jest": "24.0.18",
+    "@types/lodash.isequal": "^4.5.5",
     "@types/node": "12.7.11",
     "@types/react": "16.9.5",
     "@types/react-dom": "16.9.1",
-    "apollo-boost": "^0.4.7",
     "e2e-client": "file:../e2e-client",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-scripts": "3.2.0",
-    "typescript": "3.6.3"
+    "lodash.isequal": "^4.5.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "3.3.0",
+    "typescript": "3.7.4"
   },
   "scripts": {
-    "start": "npm run codegen && react-scripts start",
-    "build": "npm run codegen && react-scripts build",
-    "test": "npm run codegen && react-scripts test",
-    "eject": "react-scripts eject",
-    "gql:clean": "rm -rf src/_gql/generated && mkdir -p src/_gql/generated",
-    "gql:prep-schema": "sed -e 's/[^\\s]@juniper(.*)//' ../e2e-server/schema.graphql > src/_gql/generated/schema.graphql",
-    "gql:apollo": "apollo codegen:generate --target typescript --tsFileExtension=d.ts --passthroughCustomScalars --customScalarsPrefix=E2e --outputFlat src/_gql/generated",
-    "codegen": "npm run gql:clean && npm run gql:prep-schema && npm run gql:apollo"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,7 +37,6 @@
     ]
   },
   "devDependencies": {
-    "apollo": "^2.21.2",
     "http-proxy-middleware": "^0.20.0"
   }
 }
