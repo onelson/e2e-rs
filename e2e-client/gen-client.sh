@@ -8,7 +8,10 @@ OUTDIR="$BASEDIR/_gen"
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
 
-# do the codegen
+# We need both the js output and the grpc-web output since the grpc-web
+# generator doens't include the protobuf core transport itself (or something).
+# More details here:
+#   https://github.com/grpc/grpc-web#typescript-support
 protoc -I $SCHEMA_DIR $SCHEMA_DIR/chatroom.proto  \
   --js_out=import_style=commonjs,binary:$OUTDIR \
   --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:$OUTDIR
