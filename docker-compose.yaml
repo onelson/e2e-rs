@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  envoy:
+    image: envoyproxy/envoy:v1.12.2
+    command: /usr/local/bin/envoy -c /etc/chat-service-envoy.yaml --service-cluster backend-proxy
+    volumes:
+      - "./chat-service-envoy.yaml:/etc/chat-service-envoy.yaml:ro"
+    # setting the network mode to host means envoy itself is a network peer of
+    # anything else running on the machine. This allows it to forward traffic to
+    # the rust server, which is currently not running inside a docker compose
+    # network.
+    network_mode: "host"
+    expose:
+      - 9901  # envoy admin UI.
+      - 8080  # public port for talking to the rust server.

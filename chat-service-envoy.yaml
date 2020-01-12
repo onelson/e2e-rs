@@ -1,0 +1,58 @@
+# gRPC services are built on http/2 protocol, but browser support for http/2
+# tends to vary. As such, grpc-web clients require a proxy to act as a gRPC
+# "bridge" or "gateway" to paper over these limitations.
+#
+# Some background: <https://grpc.io/blog/state-of-grpc-web/>
+#
+# This config proxies http/1 and http/2 requests through to the "http/2 only"
+# rust server.
+#
+# This was based almost entirely on this example:
+# <https://github.com/grpc/grpc-web/blob/master/net/grpc/gateway/examples/echo/envoy.yaml>
+#
+
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 9901 }
+
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        # This is the public port config for talking to the rust server
+        socket_address: { address: 0.0.0.0, port_value: 8080 }
+      filter_chains:
+        - filters:
+            - name: envoy.http_connection_manager
+              config:
+                codec_type: auto
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: ["*"]
+                      routes:
+                        - match: { prefix: "/" }
+                          route:
+                            cluster: chat_service
+                            max_grpc_timeout: 0s
+                      cors:
+                        allow_origin:
+                          - "*"
+                        allow_methods: GET, PUT, DELETE, POST, OPTIONS
+                        allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
+                        max_age: "1728000"
+                        expose_headers: custom-header-1,grpc-status,grpc-message
+                http_filters:
+                  - name: envoy.grpc_web
+                  - name: envoy.cors
+                  - name: envoy.router
+  clusters:
+    - name: chat_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      http2_protocol_options: {}
+      lb_policy: round_robin
+      hosts: [{ socket_address: { address: localhost, port_value: 50051 }}]
