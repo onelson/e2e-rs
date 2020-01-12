@@ -1,5 +1,6 @@
 import ApolloClient from "apollo-boost";
 import { gql } from "apollo-boost";
+import { ChatroomServicePromiseClient } from "e2e-client";
 
 export function getClient(): ApolloClient<any> {
   return new ApolloClient({
@@ -30,3 +31,7 @@ export const GENERATE_USERNAME = gql`
     username: getUsername
   }
 `;
+
+export function getRPC() {
+  return new ChatroomServicePromiseClient("/api");
+}

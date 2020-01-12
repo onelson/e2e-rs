@@ -1,0 +1,23 @@
+{
+  "name": "e2e-client",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build:clean": "rm -rf ./dist",
+    "gen:client": "./gen-client.sh",
+    "gen:bundle": "mkdir -p ./dist/_gen && cp -r ./_gen/* ./dist/_gen/",
+    "build": "npm run build:clean && npm run gen:client && npm run gen:bundle && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/google-protobuf": "^3.7.2",
+    "google-protobuf": "^3.11.2",
+    "grpc-web": "^1.0.7",
+    "typescript": "^3.7.4"
+  }
+}
