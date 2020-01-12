@@ -10,6 +10,15 @@ let _client: ChatroomPromiseClient | null = null;
  * each time.
  */
 export function getClient(): ChatroomPromiseClient {
-  _client = _client || new ChatroomPromiseClient("http://localhost:8080");
+  _client =
+    _client ||
+    new ChatroomPromiseClient(
+      "http://localhost:8080",
+
+      null,
+      {
+        suppressCorsPreflight: "1"
+      }
+    );
   return _client;
 }
