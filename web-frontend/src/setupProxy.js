@@ -1,12 +1,7 @@
 const proxy = require("http-proxy-middleware");
 
 module.exports = function(app) {
-  // app.use(
-  //   "/api",
-  //   proxy({
-  //     target: "http://0.0.0.0:8080",
-  //     changeOrigin: true,
-  //     pathRewrite: { "^/api": "" }
-  //   })
-  // );
+  // We're using `envoy` to proxy the gRPC service.
+  // Still, keeping this proxy stub around in case
+  // there's another use for it later.
 };
