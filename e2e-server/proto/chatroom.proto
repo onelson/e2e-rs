@@ -2,7 +2,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 package chatroom;
 
-message Identity {
+message IdentityResponse {
     string username = 1;
 }
 
@@ -14,7 +14,7 @@ message Message {
     string text = 2;
 }
 
-message MessageCreated {
+message MessageCreateResponse {
 }
 
 message ChatLogEntry {
@@ -22,15 +22,15 @@ message ChatLogEntry {
     google.protobuf.Timestamp timestamp = 2;
 }
 
-message MessageList {
+message MessageListResponse {
     repeated ChatLogEntry messages = 1;
 }
 
-message MessageReadRequest {
+message MessageListRequest {
 }
 
-service ChatroomService {
-    rpc getIdentity (IdentityCreateRequest) returns (Identity);
-    rpc createMessage (Message) returns (MessageCreated);
-    rpc getMessages (MessageReadRequest) returns (MessageList);
+service Chatroom {
+    rpc GetIdentity (IdentityCreateRequest) returns (IdentityResponse);
+    rpc CreateMessage (Message) returns (MessageCreateResponse);
+    rpc GetMessages (MessageListRequest) returns (MessageListResponse);
 }

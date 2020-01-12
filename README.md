@@ -362,3 +362,10 @@ In summary:
 [juniper-from-schema]: https://crates.io/crates/juniper-from-schema
 [apollo-get-started]: https://www.apollographql.com/docs/react/get-started/
 
+--------------------------------------
+
+# WIP notes
+
+- missing `prost-types` in Cargo.toml (needed for tonic-build's output).
+- needed diff versions of prost/bytes compared to tutorial (looked at the
+  actual examples in the repo).
