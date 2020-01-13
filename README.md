@@ -1,3 +1,31 @@
+> This project is not arranged in the usual fashion you might manage a software
+> project.
+> There are several branches, some built on top of others, but they are not meant
+> to be viewed in terms of their history per se. It may be interesting to look at
+> them as total diffs via a "compare" view, but the lineage of each branch isn't
+> that important.
+>
+> Each of the branches named here represents a different approach, tech-wise, to
+> solve the problem keeping server and client applications aligned via
+> type-safety enforced by rust and typescript. 
+> 
+> In order of implementation, we've got:
+>
+> 1. [wasm-bindgen branch] - uses wasm-bindgen to export an HTTP client package.
+>    Alignment is maintained by using rust itself to write the HTTP client,
+>    mostly.
+> 1. [master branch] - aka "wasm removal" dumps wasm-bindgen, but uses the 
+>    `typescript-definitions` crate to export types used in a hand-written
+>    Typescript HTTP client package. This is the version with the most manual
+>    upkeep required.
+> 1. [graphql branch] - uses `juniper` for the server, and `apollo` on the
+>    client. Both server and client use codegen based on a common schema to
+>    enforce alignment.
+> 1. [grpc branch] - a similar approach to the graphql branch. Codegen is used
+>    on a common `.proto` file to produce code for a `tonic` server and
+>    `grpc-web` client.
+> 
+
 ## Aims 
 
 When building http server and client apis it can sometimes be a challenge to 
@@ -209,6 +237,10 @@ This is early still, but I'm likely going to try and provide
 [helpers][async import helper] which will help to encourage the correct usage,
 requiring developers to get access to the package via async functions.
 
+[wasm-bindgen branch]: https://github.com/onelson/e2e-rs/tree/wasm-bindgen
+[master branch]: https://github.com/onelson/e2e-rs/tree/master
+[graphql branch]: https://github.com/onelson/e2e-rs/tree/graphql
+[grpc branch]: https://github.com/onelson/e2e-rs/tree/grpc
 [wasm-bindgen Hello World]: https://rustwasm.github.io/docs/wasm-bindgen/examples/hello-world.html
 [modifications]: https://github.com/onelson/e2e-rs/commit/d51acb6a4460c81efba84dbc4f1f980704c76f89
 [async import helper]: https://github.com/onelson/e2e-rs/blob/6265356f1ced493c5d4fd45f037c3ea1231114ca/web-frontend/src/api-client.js
