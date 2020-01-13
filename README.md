@@ -1,12 +1,33 @@
-> The first iteration of this project has been shelved in the [wasm-bindgen branch].
+> This project is not arranged in the usual fashion you might manage a software
+> project.
+> There are several branches, some built on top of others, but they are not meant
+> to be viewed in terms of their history per se. It may be interesting to look at
+> them as total diffs via a "compare" view, but the lineage of each branch isn't
+> that important.
 >
-> The second iteration is a simplification removing the wasm aspect in favor of
-> hand-writing a typescript client using types dumped from a crate of core types,
-> currently in the [master branch].
+> Each of the branches named here represents a different approach, tech-wise, to
+> solve the problem keeping server and client applications aligned via
+> type-safety enforced by rust and typescript. 
+> 
+> In order of implementation, we've got:
 >
-> In *this iteration*, the experiment was to replace the REST API with
-> [GraphQL](http://graphql.org/) which naturally meant a fair amount of refactor
-> to support.
+> 1. [wasm-bindgen branch] - uses wasm-bindgen to export an HTTP client package.
+>    Alignment is maintained by using rust itself to write the HTTP client,
+>    mostly.
+> 1. [master branch] - aka "wasm removal" dumps wasm-bindgen, but uses the 
+>    `typescript-definitions` crate to export types used in a hand-written
+>    Typescript HTTP client package. This is the version with the most manual
+>    upkeep required.
+> 1. [graphql branch] - uses `juniper` for the server, and `apollo` on the
+>    client. Both server and client use codegen based on a common schema to
+>    enforce alignment.
+> 1. [grpc branch] - a similar approach to the graphql branch. Codegen is used
+>    on a common `.proto` file to produce code for a `tonic` server and
+>    `grpc-web` client.
+>
+> In *this iteration*, carried forward from the [master branch], the experiment
+> was to replace the REST API with [GraphQL](http://graphql.org/) which naturally 
+> meant a fair amount of refactor to support.
 
 ## Aims
 
@@ -358,6 +379,7 @@ In summary:
 [wasm-bindgen branch]: https://github.com/onelson/e2e-rs/tree/wasm-bindgen
 [master branch]: https://github.com/onelson/e2e-rs/tree/master
 [graphql branch]: https://github.com/onelson/e2e-rs/tree/graphql
+[grpc branch]: https://github.com/onelson/e2e-rs/tree/grpc
 [juniper]: https://crates.io/crates/juniper
 [juniper-from-schema]: https://crates.io/crates/juniper-from-schema
 [apollo-get-started]: https://www.apollographql.com/docs/react/get-started/
