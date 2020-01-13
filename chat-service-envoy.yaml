@@ -7,8 +7,10 @@
 # This config proxies http/1 and http/2 requests through to the "http/2 only"
 # rust server.
 #
-# This was based almost entirely on this example:
-# <https://github.com/grpc/grpc-web/blob/master/net/grpc/gateway/examples/echo/envoy.yaml>
+# This was based almost entirely on these examples:
+#
+# - <https://grpc.io/docs/tutorials/basic/web/>
+# - <https://github.com/grpc/grpc-web/blob/master/net/grpc/gateway/examples/echo/envoy.yaml>
 #
 
 admin:
