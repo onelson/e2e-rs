@@ -46,29 +46,25 @@ const ChatList = () => {
       {messages.length === 0 ? (
         <li>No messages (yet).</li>
       ) : (
-        messages
-          .map(x => {
-            return {
-              timestamp: x?.getTimestamp()?.toDate(),
-              msg: x?.getMsg()?.toObject()
-            };
-          })
-          .map(({ timestamp, msg }, idx) => {
-            let date = new Date();
-            return msg?.author === "SYSTEM" ? (
-              <li key={idx} className="system">
-                <span className="who">{`[${date.toLocaleTimeString()}]: `}</span>
-                <span>{msg.text}</span>
-              </li>
-            ) : (
-              <li key={idx}>
-                <span className="who">{`[${date.toLocaleTimeString()}] ${
-                  msg?.author
-                }: `}</span>
-                <span>{msg?.text}</span>
-              </li>
-            );
-          })
+        messages.map((entry, idx) => {
+          const date = entry
+            .getTimestamp()
+            ?.toDate()
+            .toLocaleTimeString();
+          const author = entry.getMsg()?.getAuthor();
+          const text = entry.getMsg()?.getText();
+          return author === "SYSTEM" ? (
+            <li key={idx} className="system">
+              <span className="who">{`[${date}]: `}</span>
+              <span>{text}</span>
+            </li>
+          ) : (
+            <li key={idx}>
+              <span className="who">{`[${date}] ${author}: `}</span>
+              <span>{text}</span>
+            </li>
+          );
+        })
       )}
     </ul>
   );
