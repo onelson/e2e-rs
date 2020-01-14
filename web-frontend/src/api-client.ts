@@ -1,15 +1,21 @@
 import { ChatroomPromiseClient } from "e2e-client";
 export * from "e2e-client";
 
-let _client: ChatroomPromiseClient | null = null;
+interface MaybeDevToolWindow extends Window {
+  __GRPCWEB_DEVTOOLS__?: any;
+}
+
+const _client: ChatroomPromiseClient = new ChatroomPromiseClient(
+  "http://localhost:8080"
+);
+
+declare const window: MaybeDevToolWindow;
+const enableDevTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
+enableDevTools([_client]);
 
 /**
  * Singleton gRPC client getter.
- *
- * Do we even really need this? Might make more sense to just return a new one
- * each time.
  */
 export function getClient(): ChatroomPromiseClient {
-  _client = _client || new ChatroomPromiseClient("http://localhost:8080");
   return _client;
 }
