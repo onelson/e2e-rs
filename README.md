@@ -123,12 +123,14 @@ To do this, from the project root, run
 $ docker-compose up
 ```
 
-
 In another shell, from the `e2e-server` sub-directory, run
 
 ```shell script
 $ env DATA_DIR=.. cargo run
 ```
+
+> The `DATA_DIR` env var tells the server where to find the text files used to
+> generate a username when a client connects. It should point to the repo root.
 
 In yet another shell, build the `e2e-client` package by switching to the
 `e2e-client` directory and running:
