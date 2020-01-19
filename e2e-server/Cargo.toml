@@ -3,19 +3,10 @@ name = "e2e-server"
 version = "0.1.0"
 authors = ["Owen Nelson <onelson@gmail.com>"]
 edition = "2018"
-build = "build.rs"
 
 [dependencies]
 env_logger = "0.7"
 rand = "0.7.2"
 log = "0.4.8"
-
-prost = "0.6.0"
-prost-types = "0.6.0"
-
 tokio = { version = "0.2", features = ["macros"] }
-tonic = "0.1.0"
-
-
-[build-dependencies]
-tonic-build = "0.1.0"
+e2e-grpc = { path = "../e2e-grpc" }

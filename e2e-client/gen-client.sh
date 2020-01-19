@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 BASEDIR=$(dirname "$0")
-SCHEMA_DIR="$BASEDIR/../e2e-server/proto"
+SCHEMA_DIR="$BASEDIR/../proto"
 OUTDIR="$BASEDIR/_gen"
 
 # cleanup

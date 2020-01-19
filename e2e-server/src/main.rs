@@ -1,7 +1,7 @@
+use e2e_grpc::tonic::transport::Server;
 use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tonic::transport::Server;
 
 mod data;
 mod schema;

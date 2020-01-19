@@ -1,4 +1,5 @@
 [workspace]
 members = [
+    "e2e-grpc",
     "e2e-server",
 ]
