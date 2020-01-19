@@ -1,0 +1,14 @@
+{
+  "name": "e2e-client-neon",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "author": "Owen Nelson <onelson@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "neon-cli": "^0.3.3"
+  },
+  "scripts": {
+    "install": "neon build"
+  }
+}

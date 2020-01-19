@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "e2e-client-neon/native",
     "e2e-grpc",
     "e2e-server",
 ]

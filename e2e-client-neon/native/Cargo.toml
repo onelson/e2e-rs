@@ -1,0 +1,17 @@
+[package]
+name = "e2e-client-neon"
+version = "0.1.0"
+authors = ["Owen Nelson <onelson@gmail.com>"]
+license = "MIT"
+build = "build.rs"
+exclude = ["artifacts.json", "index.node"]
+
+[lib]
+name = "e2e_client_neon"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+neon-build = "0.3.3"
+
+[dependencies]
+neon = "0.3.3"
