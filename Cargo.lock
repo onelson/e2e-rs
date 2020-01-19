@@ -127,8 +127,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "e2e-client-neon"
 version = "0.1.0"
 dependencies = [
+ "e2e-grpc 0.1.0",
  "neon 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "neon-build 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

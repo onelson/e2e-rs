@@ -5,6 +5,7 @@ authors = ["Owen Nelson <onelson@gmail.com>"]
 license = "MIT"
 build = "build.rs"
 exclude = ["artifacts.json", "index.node"]
+edition = "2018"
 
 [lib]
 name = "e2e_client_neon"
@@ -15,3 +16,5 @@ neon-build = "0.3.3"
 
 [dependencies]
 neon = "0.3.3"
+e2e-grpc = { path = "../../e2e-grpc" }
+tokio = "0.2.9"

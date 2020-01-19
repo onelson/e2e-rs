@@ -8,5 +8,5 @@ edition = "2018"
 env_logger = "0.7"
 rand = "0.7.2"
 log = "0.4.8"
-tokio = { version = "0.2", features = ["macros"] }
+tokio = { version = "0.2.9", features = ["macros"] }
 e2e-grpc = { path = "../e2e-grpc" }
