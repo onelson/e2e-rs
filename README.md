@@ -202,7 +202,8 @@ Here's the breakdown of what's been added:
 - `gql:prep-schema`: this one is odd, and someday may not be needed but it makes
   a copy of the schema in the server dir, stripping out some stuff that isn't
   legal in the process. This **cleaned version of the schema** is what all the
-  frontend stuff will look at.
+  frontend stuff will look at. **Update:** this "prep" step should no longer be
+  needed when a pending PR for `juniper-from-schema` lands.
 - `gql:apollo`: runs the typescript codegen based on the **cleaned schema**.
 - `codegen`: this one runs through all the above tasks in series, and is added as
   a first step for `build`, `test`, and `run`.
@@ -231,6 +232,11 @@ during codegen talking about types already being registered.
 > This is a workaround, and may not always be needed.
 >
 > For details, see: <https://github.com/davidpdrsn/juniper-from-schema/issues/103>
+
+**Update:** A pending PR for this issue looks to have solved the need for
+generating a 2nd copy of the schema file by allowing us to have a definition for
+the `@juniper` directive in our schema. This allows the schema file to "pass"
+both for server side and client side codegen as well as IDE inspections.
 
 #### Implementation Notes
 

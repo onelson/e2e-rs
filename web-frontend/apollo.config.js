@@ -4,7 +4,7 @@ module.exports = {
     tagName: "gql",
     service: {
       name: "MessagesAPI",
-      localSchemaFile: "src/_gql/generated/schema.graphql"
+      localSchemaFile: "../schema.graphql"
     }
   }
 };

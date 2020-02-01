@@ -5,6 +5,12 @@ scalar DateTimeUtc
 #scalar Url
 #scalar Uuid
 
+directive @juniper(
+    ownership: String = "borrowed",
+    infallible: Boolean = false,
+    with_time_zone: Boolean = true
+) on FIELD_DEFINITION
+
 schema {
     query: Query
     mutation: Mutation
